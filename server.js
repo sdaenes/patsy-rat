@@ -36,10 +36,14 @@ app.post('/api/rapport', async (req, res) => {
     const docxBuffer = await generateDocx(data);
 
     // Envoi email + upload Drive en parallèle
+    console.log('📧 Tentative envoi email à :', data.clientEmail);
+    console.log('☁️  Tentative upload Drive, folder:', process.env.GOOGLE_DRIVE_FOLDER_ID);
     const [emailInfo, driveInfo] = await Promise.allSettled([
       sendReportByEmail(data, docxBuffer),
       uploadToDrive(docxBuffer, filename),
     ]);
+    console.log('📧 Email résultat:', emailInfo.status, emailInfo.reason?.message || '');
+    console.log('☁️  Drive résultat:', driveInfo.status, driveInfo.reason?.message || '');
 
     const result = {
       success: true,
