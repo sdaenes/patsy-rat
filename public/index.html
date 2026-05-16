@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patsy-Rat — Compte-rendu d'intervention</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Variables ───────────────────────────────── */
+    :root {
+      --green-900: #1a3009;
+      --green-800: #2D5016;
+      --green-600: #4A7C2F;
+      --green-400: #6B9E4A;
+      --green-100: #EAF3E0;
+      --green-50:  #F4FAF0;
+      --earth:     #8B6F47;
+      --text:      #1a2010;
+      --text-muted:#5a6e4a;
+      --border:    #c8ddb8;
+      --white:     #ffffff;
+      --radius:    10px;
+      --shadow:    0 4px 24px rgba(45,80,22,0.10);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--green-50);
+      color: var(--text);
+      min-height: 100vh;
+      background-image:
+        radial-gradient(ellipse at 0% 0%, rgba(74,124,47,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 100% 100%, rgba(45,80,22,0.06) 0%, transparent 60%);
+    }
+
+    /* ── Header ──────────────────────────────────── */
+    .site-header {
+      background: var(--green-800);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 16px rgba(26,48,9,0.25);
+    }
+    .site-header__inner {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .site-header__logo {
+      height: 44px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: .85;
+    }
+    .site-header__title {
+      font-family: 'Playfair Display', serif;
+      color: #fff;
+      font-size: clamp(1rem, 3vw, 1.35rem);
+      line-height: 1.2;
+      flex: 1;
+    }
+    .site-header__sub {
+      color: #C8E6A0;
+      font-size: .78rem;
+      font-weight: 300;
+      letter-spacing: .04em;
+      margin-top: 2px;
+    }
+
+    /* ── Layout ──────────────────────────────────── */
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 32px 16px 64px;
+    }
+
+    /* ── Section cards ───────────────────────────── */
+    .section-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 20px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: box-shadow .2s;
+    }
+    .section-card:focus-within {
+      box-shadow: 0 6px 32px rgba(45,80,22,0.15);
+    }
+    .section-card__header {
+      background: var(--green-800);
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .section-card__header .icon {
+      font-size: 1.2rem;
+    }
+    .section-card__header h2 {
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      font-weight: 600;
+      color: #fff;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      flex: 1;
+    }
+    .section-card__header .chevron {
+      color: #C8E6A0;
+      font-size: .85rem;
+      transition: transform .25s;
+    }
+    .section-card.collapsed .chevron { transform: rotate(-90deg); }
+    .section-card__body {
+      padding: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px 20px;
+    }
+    .section-card.collapsed .section-card__body { display: none; }
+    .full-width { grid-column: 1 / -1; }
+
+    /* ── Form elements ───────────────────────────── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+    label {
+      font-size: .8rem;
+      font-weight: 600;
+      color: var(--green-800);
+      letter-spacing: .03em;
+      text-transform: uppercase;
+    }
+    label .required { color: #c0392b; margin-left: 2px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="date"],
+    input[type="time"],
+    input[type="number"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .93rem;
+      color: var(--text);
+      background: var(--green-50);
+      transition: border-color .15s, box-shadow .15s;
+      appearance: none;
+    }
+    input:focus, textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--green-600);
+      box-shadow: 0 0 0 3px rgba(74,124,47,0.12);
+      background: #fff;
+    }
+    textarea { resize: vertical; min-height: 80px; }
+
+    /* ── Checkbox group ───────────────────────────── */
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .check-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: .87rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      transition: all .15s;
+      user-select: none;
+    }
+    .check-pill input { display: none; }
+    .check-pill:hover { border-color: var(--green-600); color: var(--green-800); }
+    .check-pill.active {
+      background: var(--green-800);
+      border-color: var(--green-800);
+      color: #fff;
+    }
+
+    /* ── Radio toggle ────────────────────────────── */
+    .radio-toggle {
+      display: flex;
+      gap: 0;
+      border: 1.5px solid var(--border);
+      border-radius: 7px;
+      overflow: hidden;
+      width: fit-content;
+    }
+    .radio-toggle label {
+      padding: 9px 20px;
+      font-size: .87rem;
+      font-weight: 500;
+      cursor: pointer;
+      color: var(--text-muted);
+      background: var(--green-50);
+      text-transform: none;
+      letter-spacing: 0;
+      border-radius: 0;
+      transition: all .15s;
+    }
+    .radio-toggle input { display: none; }
+    .radio-toggle input:checked + label {
+      background: var(--green-800);
+      color: #fff;
+    }
+
+    /* ── Summary numbers ─────────────────────────── */
+    .numbers-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      grid-column: 1 / -1;
+    }
+    .number-box {
+      background: var(--green-100);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 10px 10px;
+      text-align: center;
+    }
+    .number-box label {
+      font-size: .72rem;
+      color: var(--green-800);
+      display: block;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .number-box input {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--green-800);
+      border-color: transparent;
+      background: transparent;
+      padding: 4px;
+    }
+    .number-box input:focus {
+      border-color: var(--green-600);
+      background: #fff;
+    }
+
+    /* ── Actions ──────────────────────────────────── */
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 13px 24px;
+      border: none;
+      border-radius: 8px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: .95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .18s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--green-800);
+      color: #fff;
+      flex: 1;
+      justify-content: center;
+      min-width: 180px;
+    }
+    .btn-primary:hover { background: var(--green-900); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(45,80,22,0.25); }
+    .btn-primary:active { transform: translateY(0); }
+    .btn-secondary {
+      background: #fff;
+      color: var(--green-800);
+      border: 1.5px solid var(--border);
+      flex: 0 1 auto;
+    }
+    .btn-secondary:hover { background: var(--green-100); border-color: var(--green-600); }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none !important; }
+
+    /* ── Toast ───────────────────────────────────── */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: center;
+      pointer-events: none;
+    }
+    .toast {
+      padding: 13px 22px;
+      border-radius: 8px;
+      font-size: .9rem;
+      font-weight: 500;
+      max-width: 420px;
+      text-align: center;
+      animation: toastIn .3s ease, toastOut .3s ease 3.7s forwards;
+      pointer-events: all;
+    }
+    .toast.success { background: var(--green-800); color: #fff; }
+    .toast.error   { background: #c0392b; color: #fff; }
+    .toast.info    { background: #2c5f8a; color: #fff; }
+    @keyframes toastIn  { from { opacity:0; transform:translateY(12px); } to { opacity:1; transform:translateY(0); } }
+    @keyframes toastOut { from { opacity:1; } to { opacity:0; } }
+
+    /* ── Spinner ─────────────────────────────────── */
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: none;
+    }
+    .btn-primary.loading .spinner { display: block; }
+    .btn-primary.loading .btn-label { opacity: .7; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Result panel ────────────────────────────── */
+    .result-panel {
+      display: none;
+      background: var(--green-100);
+      border: 1.5px solid var(--green-400);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      margin-top: 20px;
+      gap: 12px;
+      flex-direction: column;
+    }
+    .result-panel.visible { display: flex; }
+    .result-panel h3 { color: var(--green-800); font-size: 1rem; }
+    .result-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: .9rem;
+    }
+    .result-item .dot {
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      margin-top: 4px;
+      flex-shrink: 0;
+    }
+    .dot.ok { background: var(--green-600); }
+    .dot.ko { background: #c0392b; }
+    .result-item a { color: var(--green-800); text-decoration: underline; word-break: break-all; }
+
+    /* ── Responsive ──────────────────────────────── */
+    @media (max-width: 580px) {
+      .section-card__body { grid-template-columns: 1fr; }
+      .numbers-grid { grid-template-columns: 1fr; }
+      .full-width { grid-column: 1; }
+      .radio-toggle { flex-direction: column; width: 100%; }
+      .radio-toggle label { text-align: center; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="site-header__inner">
+    <img src="/logo.jpg" alt="Patsy-Rat" class="site-header__logo" onerror="this.style.display='none'" />
+    <div>
+      <div class="site-header__title">Patsy-Rat</div>
+      <div class="site-header__sub">Compte-rendu d'intervention</div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- ── 1. Infos générales ─────────────────── -->
+  <div class="section-card" id="card-general">
+    <div class="section-card__header" onclick="toggleCard('card-general')">
+      <span class="icon">📋</span>
+      <h2>1. Informations générales</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field">
+        <label>N° de rapport</label>
+        <input type="text" id="numeroRapport" placeholder="Auto-généré si vide" />
+      </div>
+      <div class="field">
+        <label>Date d'intervention <span class="required">*</span></label>
+        <input type="date" id="dateIntervention" required />
+      </div>
+      <div class="field">
+        <label>Heure d'arrivée</label>
+        <input type="time" id="heureArrivee" />
+      </div>
+      <div class="field">
+        <label>Heure de départ</label>
+        <input type="time" id="heureDepart" />
+      </div>
+      <div class="field full-width">
+        <label>Horaire</label>
+        <div class="radio-toggle">
+          <input type="radio" name="horaire" id="h-jour" value="jour" checked />
+          <label for="h-jour">☀️ De jour</label>
+          <input type="radio" name="horaire" id="h-nuit" value="nuit" />
+          <label for="h-nuit">🌙 De nuit</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 2. Client ──────────────────────────── -->
+  <div class="section-card" id="card-client">
+    <div class="section-card__header" onclick="toggleCard('card-client')">
+      <span class="icon">🏢</span>
+      <h2>2. Identification du client</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field">
+        <label>Raison sociale / Nom</label>
+        <input type="text" id="clientNom" placeholder="Entreprise ou nom" />
+      </div>
+      <div class="field">
+        <label>E-mail client <span class="required">*</span></label>
+        <input type="email" id="clientEmail" placeholder="client@exemple.fr" required />
+      </div>
+      <div class="field full-width">
+        <label>Adresse du site</label>
+        <input type="text" id="clientAdresse" placeholder="N° rue, adresse" />
+      </div>
+      <div class="field">
+        <label>Code postal</label>
+        <input type="text" id="clientCP" placeholder="75000" />
+      </div>
+      <div class="field">
+        <label>Ville</label>
+        <input type="text" id="clientVille" placeholder="Paris" />
+      </div>
+      <div class="field">
+        <label>Contact sur site</label>
+        <input type="text" id="clientContact" placeholder="Prénom Nom" />
+      </div>
+      <div class="field">
+        <label>Téléphone</label>
+        <input type="text" id="clientTelephone" placeholder="06 00 00 00 00" />
+      </div>
+      <div class="field full-width">
+        <label>Accompagnateur présent</label>
+        <div class="radio-toggle">
+          <input type="radio" name="accompagnateur" id="acc-non" value="non" checked />
+          <label for="acc-non">Non</label>
+          <input type="radio" name="accompagnateur" id="acc-oui" value="oui" />
+          <label for="acc-oui">Oui</label>
+        </div>
+      </div>
+      <div class="field full-width" id="field-accompagnateur-nom" style="display:none">
+        <label>Nom de l'accompagnateur</label>
+        <input type="text" id="accompagnateurNom" placeholder="Prénom Nom" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 3. Intervention ────────────────────── -->
+  <div class="section-card" id="card-intervention">
+    <div class="section-card__header" onclick="toggleCard('card-intervention')">
+      <span class="icon">🎯</span>
+      <h2>3. Type d'intervention</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field full-width">
+        <label>Espèce(s) ciblée(s)</label>
+        <div class="checkbox-group" id="especes-group">
+          <label class="check-pill"><input type="checkbox" name="espece" value="Pigeons" /><span>🐦 Pigeons</span></label>
+          <label class="check-pill"><input type="checkbox" name="espece" value="Rats" /><span>🐀 Rats</span></label>
+          <label class="check-pill"><input type="checkbox" name="espece" value="Autre" id="cb-autre-espece" /><span>Autre</span></label>
+        </div>
+      </div>
+      <div class="field full-width" id="field-espece-autre" style="display:none">
+        <label>Préciser l'espèce</label>
+        <input type="text" id="especeAutre" placeholder="Mouettes, étourneaux…" />
+      </div>
+      <div class="field">
+        <label>Méthode</label>
+        <input type="text" id="methode" value="Carabine à air comprimé" />
+      </div>
+      <div class="field">
+        <label>Calibre utilisé</label>
+        <input type="text" id="calibre" placeholder="ex. 4,5 mm / 5,5 mm" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 4. Résultats ───────────────────────── -->
+  <div class="section-card" id="card-resultats">
+    <div class="section-card__header" onclick="toggleCard('card-resultats')">
+      <span class="icon">📊</span>
+      <h2>4. Résultats</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="numbers-grid">
+        <div class="number-box">
+          <label>Estimatif site</label>
+          <input type="number" id="nbEstimatif" placeholder="0" min="0" />
+        </div>
+        <div class="number-box">
+          <label>Régulés (abattus)</label>
+          <input type="number" id="nbRegules" placeholder="0" min="0" />
+        </div>
+        <div class="number-box">
+          <label>Ramassés (carcasses)</label>
+          <input type="number" id="nbRamasses" placeholder="0" min="0" />
+        </div>
+      </div>
+      <div class="field full-width">
+        <label>Gestion des carcasses</label>
+        <div class="checkbox-group">
+          <label class="check-pill"><input type="checkbox" id="gestionClient" /><span>Client</span></label>
+          <label class="check-pill"><input type="checkbox" id="gestionEntreprise" /><span>Patsy-Rat</span></label>
+          <label class="check-pill"><input type="checkbox" id="atemax" /><span>Équarrissage ATEMAX</span></label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 5. Description ─────────────────────── -->
+  <div class="section-card" id="card-description">
+    <div class="section-card__header" onclick="toggleCard('card-description')">
+      <span class="icon">📝</span>
+      <h2>5. Description de l'intervention</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field full-width">
+        <label>Conditions d'accès / particularités du site</label>
+        <textarea id="conditionsAcces" placeholder="Accès difficile, toiture, sous-sol, bâtiment occupé…"></textarea>
+      </div>
+      <div class="field full-width">
+        <label>Déroulement de l'intervention</label>
+        <textarea id="deroulement" style="min-height:120px" placeholder="Décrivez chronologiquement le déroulement…"></textarea>
+      </div>
+      <div class="field full-width">
+        <label>Observations / difficultés rencontrées</label>
+        <textarea id="observations" placeholder="Problèmes techniques, météo, obstacles…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 6. Recommandations ─────────────────── -->
+  <div class="section-card" id="card-reco">
+    <div class="section-card__header" onclick="toggleCard('card-reco')">
+      <span class="icon">🔄</span>
+      <h2>6. Recommandations & suivi</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field full-width">
+        <label>Nouvelle intervention préconisée ?</label>
+        <div class="radio-toggle">
+          <input type="radio" name="nouvelleIntervention" id="ni-non" value="non" checked />
+          <label for="ni-non">Non</label>
+          <input type="radio" name="nouvelleIntervention" id="ni-oui" value="oui" />
+          <label for="ni-oui">Oui</label>
+        </div>
+      </div>
+      <div class="field" id="field-date-suivi" style="display:none">
+        <label>Date prévisionnelle</label>
+        <input type="date" id="dateSuivi" />
+      </div>
+      <div class="field full-width">
+        <label>Recommandations particulières</label>
+        <textarea id="recommandations" placeholder="Conseils au client, mesures préventives…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── 7. Commentaires ────────────────────── -->
+  <div class="section-card" id="card-validation">
+    <div class="section-card__header" onclick="toggleCard('card-validation')">
+      <span class="icon">✅</span>
+      <h2>7. Commentaires & validation</h2>
+      <span class="chevron">▼</span>
+    </div>
+    <div class="section-card__body">
+      <div class="field full-width">
+        <label>Commentaires du client</label>
+        <textarea id="commentairesClient" placeholder="Remarques, satisfaction, demandes particulières…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Actions ────────────────────────────── -->
+  <div class="actions">
+    <button class="btn btn-secondary" onclick="downloadPreview()">⬇ Télécharger (aperçu)</button>
+    <button class="btn btn-primary" id="btn-submit" onclick="submitForm()">
+      <span class="spinner"></span>
+      <span class="btn-label">📨 Envoyer &amp; sauvegarder</span>
+    </button>
+  </div>
+
+  <!-- ── Result panel ───────────────────────── -->
+  <div class="result-panel" id="result-panel">
+    <h3>✅ Rapport traité avec succès</h3>
+    <div id="result-email" class="result-item"></div>
+    <div id="result-drive" class="result-item"></div>
+  </div>
+
+</div>
+
+<!-- ── Toast ─────────────────────────────────── -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // ── Toggle cards ─────────────────────────────────────────────────────────
+  function toggleCard(id) {
+    document.getElementById(id).classList.toggle('collapsed');
+  }
+
+  // ── Check pills ──────────────────────────────────────────────────────────
+  document.querySelectorAll('.check-pill').forEach(pill => {
+    pill.addEventListener('click', () => {
+      const cb = pill.querySelector('input[type="checkbox"]');
+      // Toggle handled by click; sync visual state
+      setTimeout(() => pill.classList.toggle('active', cb.checked), 0);
+    });
+  });
+
+  // ── Accompagnateur toggle ─────────────────────────────────────────────────
+  document.querySelectorAll('input[name="accompagnateur"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const show = document.getElementById('acc-oui').checked;
+      document.getElementById('field-accompagnateur-nom').style.display = show ? 'flex' : 'none';
+    });
+  });
+
+  // ── Nouvelle intervention toggle ──────────────────────────────────────────
+  document.querySelectorAll('input[name="nouvelleIntervention"]').forEach(r => {
+    r.addEventListener('change', () => {
+      const show = document.getElementById('ni-oui').checked;
+      document.getElementById('field-date-suivi').style.display = show ? 'flex' : 'none';
+    });
+  });
+
+  // ── Autre espèce toggle ───────────────────────────────────────────────────
+  document.getElementById('cb-autre-espece').addEventListener('change', function() {
+    document.getElementById('field-espece-autre').style.display = this.checked ? 'flex' : 'none';
+  });
+
+  // ── Set today's date ──────────────────────────────────────────────────────
+  document.getElementById('dateIntervention').value = new Date().toISOString().split('T')[0];
+
+  // ── Collect form data ─────────────────────────────────────────────────────
+  function collectData() {
+    const especes = [...document.querySelectorAll('input[name="espece"]:checked')].map(c => c.value);
+    const cp = document.getElementById('clientCP').value.trim();
+    const ville = document.getElementById('clientVille').value.trim();
+
+    // Calcul durée auto
+    const arr = document.getElementById('heureArrivee').value;
+    const dep = document.getElementById('heureDepart').value;
+    let duree = '';
+    if (arr && dep) {
+      const [ah, am] = arr.split(':').map(Number);
+      const [dh, dm] = dep.split(':').map(Number);
+      const mins = (dh * 60 + dm) - (ah * 60 + am);
+      if (mins > 0) duree = `${Math.floor(mins/60)}h${String(mins%60).padStart(2,'0')}`;
+    }
+
+    return {
+      numeroRapport:       document.getElementById('numeroRapport').value.trim(),
+      dateIntervention:    document.getElementById('dateIntervention').value,
+      heureArrivee:        arr,
+      heureDepart:         dep,
+      dureeTotale:         duree,
+      horaire:             document.querySelector('input[name="horaire"]:checked')?.value || 'jour',
+      clientNom:           document.getElementById('clientNom').value.trim(),
+      clientEmail:         document.getElementById('clientEmail').value.trim(),
+      clientAdresse:       document.getElementById('clientAdresse').value.trim(),
+      clientVille:         [cp, ville].filter(Boolean).join(' '),
+      clientContact:       document.getElementById('clientContact').value.trim(),
+      clientTelephone:     document.getElementById('clientTelephone').value.trim(),
+      accompagnateur:      document.getElementById('acc-oui').checked,
+      accompagnateurNom:   document.getElementById('accompagnateurNom').value.trim(),
+      especes,
+      especeAutre:         document.getElementById('especeAutre').value.trim(),
+      methode:             document.getElementById('methode').value.trim(),
+      calibre:             document.getElementById('calibre').value.trim(),
+      nbEstimatif:         document.getElementById('nbEstimatif').value,
+      nbRegules:           document.getElementById('nbRegules').value,
+      nbRamasses:          document.getElementById('nbRamasses').value,
+      gestionClient:       document.getElementById('gestionClient').checked,
+      gestionEntreprise:   document.getElementById('gestionEntreprise').checked,
+      atemax:              document.getElementById('atemax').checked,
+      conditionsAcces:     document.getElementById('conditionsAcces').value.trim(),
+      deroulement:         document.getElementById('deroulement').value.trim(),
+      observations:        document.getElementById('observations').value.trim(),
+      nouvelleIntervention:document.getElementById('ni-oui').checked,
+      dateSuivi:           document.getElementById('dateSuivi').value,
+      recommandations:     document.getElementById('recommandations').value.trim(),
+      commentairesClient:  document.getElementById('commentairesClient').value.trim(),
+    };
+  }
+
+  function validate(data) {
+    if (!data.dateIntervention) { toast('Veuillez renseigner la date d\'intervention.', 'error'); return false; }
+    if (!data.clientEmail)      { toast('L\'email du client est obligatoire.', 'error'); return false; }
+    if (!data.clientEmail.includes('@')) { toast('Email client invalide.', 'error'); return false; }
+    return true;
+  }
+
+  // ── Toast ─────────────────────────────────────────────────────────────────
+  function toast(msg, type = 'info') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.textContent = msg;
+    document.getElementById('toast-container').appendChild(el);
+    setTimeout(() => el.remove(), 4200);
+  }
+
+  // ── Download preview ──────────────────────────────────────────────────────
+  async function downloadPreview() {
+    const data = collectData();
+    if (!validate(data)) return;
+    toast('Génération du document…', 'info');
+    try {
+      const res = await fetch('/api/rapport/download', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href = url; a.download = `Rapport_Patsy-Rat_${data.numeroRapport || 'preview'}.docx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      toast('Erreur : ' + e.message, 'error');
+    }
+  }
+
+  // ── Submit ────────────────────────────────────────────────────────────────
+  async function submitForm() {
+    const data = collectData();
+    if (!validate(data)) return;
+
+    const btn = document.getElementById('btn-submit');
+    btn.disabled = true;
+    btn.classList.add('loading');
+    document.getElementById('result-panel').classList.remove('visible');
+
+    try {
+      const res = await fetch('/api/rapport', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+      const result = await res.json();
+
+      if (!res.ok) { toast('Erreur : ' + result.error, 'error'); return; }
+
+      // Afficher le résultat
+      const panel = document.getElementById('result-panel');
+      const emailDiv = document.getElementById('result-email');
+      const driveDiv = document.getElementById('result-drive');
+
+      if (result.email?.sent) {
+        emailDiv.innerHTML = `<span class="dot ok"></span><span>Email envoyé à <strong>${data.clientEmail}</strong></span>`;
+      } else {
+        emailDiv.innerHTML = `<span class="dot ko"></span><span>Email non envoyé — ${result.email?.error || 'erreur inconnue'}</span>`;
+      }
+
+      if (result.drive?.uploaded) {
+        driveDiv.innerHTML = `<span class="dot ok"></span><span>Sauvegardé sur Google Drive : <a href="${result.drive.link}" target="_blank">Ouvrir le fichier ↗</a></span>`;
+      } else {
+        driveDiv.innerHTML = `<span class="dot ko"></span><span>Drive non sauvegardé — ${result.drive?.error || 'erreur inconnue'}</span>`;
+      }
+
+      panel.classList.add('visible');
+      toast('Rapport généré et envoyé !', 'success');
+      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    } catch (e) {
+      toast('Erreur réseau : ' + e.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+    }
+  }
+</script>
+</body>
+</html>
