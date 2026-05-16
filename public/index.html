@@ -524,7 +524,7 @@
       <span class="chevron">▼</span>
     </div>
     <div class="section-card__body">
-      <div class="numbers-grid">
+      <div class="numbers-grid" style="grid-template-columns:1fr 1fr">
         <div class="number-box">
           <label>Estimatif site</label>
           <input type="number" id="nbEstimatif" placeholder="0" min="0" />
@@ -533,15 +533,12 @@
           <label>Régulés (abattus)</label>
           <input type="number" id="nbRegules" placeholder="0" min="0" />
         </div>
-        <div class="number-box">
-        </div>
       </div>
       <div class="field full-width">
         <label>Gestion des carcasses</label>
         <div class="checkbox-group">
           <label class="check-pill"><input type="checkbox" id="gestionClient" /><span>Client</span></label>
           <label class="check-pill"><input type="checkbox" id="gestionEntreprise" /><span>Patsy-Rat</span></label>
-          <label class="check-pill"><input type="checkbox" id="atemax" /><span>Équarrissage ATEMAX</span></label>
         </div>
       </div>
     </div>
@@ -713,7 +710,6 @@
       nbRegules:           document.getElementById('nbRegules').value,
       gestionClient:       document.getElementById('gestionClient').checked,
       gestionEntreprise:   document.getElementById('gestionEntreprise').checked,
-      atemax:              document.getElementById('atemax').checked,
       conditionsAcces:     document.getElementById('conditionsAcces').value.trim(),
       deroulement:         document.getElementById('deroulement').value.trim(),
       observations:        document.getElementById('observations').value.trim(),
