@@ -1,12 +1,19 @@
-FROM node:20-alpine
+FROM node:20-slim
+
+# Installer LibreOffice pour la conversion PDF
+RUN apt-get update && apt-get install -y \
+    libreoffice \
+    libreoffice-writer \
+    fonts-liberation \
+    --no-install-recommends \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-# Copier les fichiers de dépendances
 COPY package*.json ./
 RUN npm install --omit=dev
 
-# Copier le reste du projet
 COPY . .
 
 EXPOSE 3000

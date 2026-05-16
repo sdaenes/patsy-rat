@@ -612,19 +612,20 @@
 
   <!-- ── Actions ────────────────────────────── -->
   <div class="actions">
-    <button class="btn btn-secondary" onclick="downloadPreview()">⬇ Télécharger (aperçu)</button>
-    <button class="btn btn-primary" id="btn-submit" onclick="submitForm()">
-      <span class="spinner"></span>
-      <span class="btn-label">📨 Envoyer &amp; sauvegarder</span>
+    <button class="btn btn-primary" id="btn-docx" onclick="download('docx')">
+      <span class="spinner" id="spin-docx"></span>
+      <span class="btn-label">📄 Télécharger Word</span>
+    </button>
+    <button class="btn btn-primary" id="btn-pdf" onclick="download('pdf')" style="background:var(--earth)">
+      <span class="spinner" id="spin-pdf"></span>
+      <span class="btn-label">📕 Télécharger PDF</span>
     </button>
   </div>
 
-  <!-- ── Result panel ───────────────────────── -->
-  <div class="result-panel" id="result-panel">
-    <h3>✅ Rapport traité avec succès</h3>
-    <div id="result-email" class="result-item"></div>
-    <div id="result-drive" class="result-item"></div>
-  </div>
+  <!-- ── Sauvegarde info ───────────────────────── -->
+  <p id="save-info" style="text-align:center;font-size:.8rem;color:var(--text-muted);margin-top:12px;display:none">
+    ✅ Formulaire sauvegardé automatiquement
+  </p>
 
 </div>
 
@@ -722,8 +723,7 @@
 
   function validate(data) {
     if (!data.dateIntervention) { toast('Veuillez renseigner la date d\'intervention.', 'error'); return false; }
-    if (!data.clientEmail)      { toast('L\'email du client est obligatoire.', 'error'); return false; }
-    if (!data.clientEmail.includes('@')) { toast('Email client invalide.', 'error'); return false; }
+    if (!data.clientNom) { toast('Veuillez renseigner le nom du client.', 'error'); return false; }
     return true;
   }
 
@@ -736,13 +736,85 @@
     setTimeout(() => el.remove(), 4200);
   }
 
-  // ── Download preview ──────────────────────────────────────────────────────
-  async function downloadPreview() {
+  // ── Sauvegarde automatique localStorage ──────────────────────────────────
+  const SAVE_KEY = 'patsy_rat_form';
+
+  function saveForm() {
+    try {
+      localStorage.setItem(SAVE_KEY, JSON.stringify(collectData()));
+      const info = document.getElementById('save-info');
+      if (info) { info.style.display = 'block'; setTimeout(() => info.style.display = 'none', 2000); }
+    } catch(e) {}
+  }
+
+  function restoreForm() {
+    try {
+      const saved = localStorage.getItem(SAVE_KEY);
+      if (!saved) return;
+      const d = JSON.parse(saved);
+      const set = (id, val) => { const el = document.getElementById(id); if (el && val !== undefined) el.value = val; };
+      set('numeroRapport', d.numeroRapport);
+      set('dateIntervention', d.dateIntervention);
+      set('heureArrivee', d.heureArrivee);
+      set('heureDepart', d.heureDepart);
+      set('clientNom', d.clientNom);
+      set('clientEmail', d.clientEmail);
+      set('clientAdresse', d.clientAdresse);
+      // clientVille split
+      if (d.clientVille) {
+        const parts = d.clientVille.split(' ');
+        if (parts.length > 1) { document.getElementById('clientCP').value = parts[0]; document.getElementById('clientVille').value = parts.slice(1).join(' '); }
+        else document.getElementById('clientVille').value = d.clientVille;
+      }
+      set('clientContact', d.clientContact);
+      set('clientTelephone', d.clientTelephone);
+      set('methode', d.methode);
+      set('calibre', d.calibre);
+      set('nbEstimatif', d.nbEstimatif);
+      set('nbRegules', d.nbRegules);
+      set('conditionsAcces', d.conditionsAcces);
+      set('deroulement', d.deroulement);
+      set('observations', d.observations);
+      set('dateSuivi', d.dateSuivi);
+      set('recommandations', d.recommandations);
+      set('commentairesClient', d.commentairesClient);
+      // Espèces
+      if (d.especes) {
+        document.querySelectorAll('input[name="espece"]').forEach(cb => {
+          cb.checked = d.especes.includes(cb.value);
+          cb.closest('.check-pill').classList.toggle('active', cb.checked);
+        });
+      }
+      // Radios
+      if (d.horaire) { const r = document.querySelector(`input[name="horaire"][value="${d.horaire}"]`); if(r) r.checked = true; }
+      if (d.accompagnateur) { document.getElementById('acc-oui').checked = true; document.getElementById('field-accompagnateur-nom').style.display = 'flex'; set('accompagnateurNom', d.accompagnateurNom); }
+      if (d.nouvelleIntervention) { document.getElementById('ni-oui').checked = true; document.getElementById('field-date-suivi').style.display = 'flex'; }
+    } catch(e) {}
+  }
+
+  // Sauvegarder à chaque modification
+  document.addEventListener('input', saveForm);
+  document.addEventListener('change', saveForm);
+
+  // Restaurer au chargement
+  window.addEventListener('load', restoreForm);
+
+  // ── Téléchargement ────────────────────────────────────────────────────────
+  async function download(format) {
     const data = collectData();
     if (!validate(data)) return;
-    toast('Génération du document…', 'info');
+
+    const btn  = document.getElementById(`btn-${format}`);
+    const spin = document.getElementById(`spin-${format}`);
+    btn.disabled = true;
+    spin.style.display = 'block';
+
+    // Sauvegarder le formulaire au clic
+    saveForm();
+    toast(format === 'pdf' ? 'Génération du PDF (quelques secondes)…' : 'Génération du document Word…', 'info');
+
     try {
-      const res = await fetch('/api/rapport/download', {
+      const res = await fetch(`/api/rapport/${format}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
@@ -751,60 +823,17 @@
       const blob = await res.blob();
       const url  = URL.createObjectURL(blob);
       const a    = document.createElement('a');
-      a.href = url; a.download = `Rapport_Patsy-Rat_${data.numeroRapport || 'preview'}.docx`;
+      const ext  = format === 'pdf' ? 'pdf' : 'docx';
+      a.href = url;
+      a.download = `Rapport_Patsy-Rat_${data.numeroRapport || 'rapport'}.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
+      toast('Document téléchargé !', 'success');
     } catch (e) {
       toast('Erreur : ' + e.message, 'error');
-    }
-  }
-
-  // ── Submit ────────────────────────────────────────────────────────────────
-  async function submitForm() {
-    const data = collectData();
-    if (!validate(data)) return;
-
-    const btn = document.getElementById('btn-submit');
-    btn.disabled = true;
-    btn.classList.add('loading');
-    document.getElementById('result-panel').classList.remove('visible');
-
-    try {
-      const res = await fetch('/api/rapport', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      });
-      const result = await res.json();
-
-      if (!res.ok) { toast('Erreur : ' + result.error, 'error'); return; }
-
-      // Afficher le résultat
-      const panel = document.getElementById('result-panel');
-      const emailDiv = document.getElementById('result-email');
-      const driveDiv = document.getElementById('result-drive');
-
-      if (result.email?.sent) {
-        emailDiv.innerHTML = `<span class="dot ok"></span><span>Email envoyé à <strong>${data.clientEmail}</strong></span>`;
-      } else {
-        emailDiv.innerHTML = `<span class="dot ko"></span><span>Email non envoyé — ${result.email?.error || 'erreur inconnue'}</span>`;
-      }
-
-      if (result.drive?.uploaded) {
-        driveDiv.innerHTML = `<span class="dot ok"></span><span>Sauvegardé sur Google Drive : <a href="${result.drive.link}" target="_blank">Ouvrir le fichier ↗</a></span>`;
-      } else {
-        driveDiv.innerHTML = `<span class="dot ko"></span><span>Drive non sauvegardé — ${result.drive?.error || 'erreur inconnue'}</span>`;
-      }
-
-      panel.classList.add('visible');
-      toast('Rapport généré et envoyé !', 'success');
-      panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-    } catch (e) {
-      toast('Erreur réseau : ' + e.message, 'error');
     } finally {
       btn.disabled = false;
-      btn.classList.remove('loading');
+      spin.style.display = 'none';
     }
   }
 </script>
